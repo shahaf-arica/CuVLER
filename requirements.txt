@@ -1,0 +1,11 @@
+submitit
+faiss-gpu
+opencv-python
+scikit-image
+scikit-learn
+shapely
+timm
+pyyaml
+colored
+fvcore
+gdown
