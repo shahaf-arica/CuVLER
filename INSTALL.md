@@ -16,7 +16,7 @@ pip install git+https://github.com/lucasb-eyer/pydensecrf.git
 
 # under your working directory
 pip install git+https://github.com/facebookresearch/detectron2.git
-git clone --recursive git@github.com:shahaf-arica/CuVLER.git
+git clone https://github.com/shahaf-arica/CuVLER
 cd CuVLER
 pip install -r requirements.txt
 ```
