@@ -5,6 +5,7 @@ from glob import glob
 from utils.annotaions_worker import CocoAnnotationsWorker
 from create_pseudo_masks import create_votecut_annotations
 import numpy as np
+from pathlib import Path
 import submitit
 
 
@@ -105,7 +106,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset-root", type=str, default="datasets/imagenet", help="Path to imagenet dataset")
     parser.add_argument("--split", type=str, default="val", choices=["train", "val"], help="Split to use")
     parser.add_argument("--Ks", type=tuple, default=(2, 3), help="Ks to use for kmeans")
-    parser.add_argument("--out-file", type=str, default="votecut_annotations_imagenet_val.json", help="")
+    parser.add_argument("--out-dir", type=str, default="datasets/imagenet/annotations", help="")
     parser.add_argument("--tau-m", type=float, default=0.2, help="")
     parser.add_argument("--models", nargs='+',
                         default=["dino_s16", "dinov2_b14", "dinov2_s14", "dino_b16", "dino_s8", "dino_b8"],
@@ -149,9 +150,11 @@ if __name__ == "__main__":
         print("Aggregating all annotations...")
         all_tmp_ann_files = glob(f"{args.jobs_dir}/*/*.json")
         anns = CocoAnnotationsWorker.collect_to_single_ann_dict(all_tmp_ann_files, imgnet_train=args.split == "train")
-        os.makedirs(os.path.dirname(args.out_file), exist_ok=True)
-        print(f"Saving aggregated annotations to {args.out_file}")
-        with open(args.out_file, "w") as f:
+        ann_file = f"imagenet_{args.split}_votecut_kmax_{max(args.Ks)}_tuam_{args.tau_m}.json"
+        Path(args.out_dir).mkdir(parents=True, exist_ok=True)
+        out_file = os.path.join(args.out_dir, ann_file)
+        print(f"Saving aggregated annotations to {out_file}")
+        with open(out_file, "w") as f:
             json.dump(anns, f)
         if not args.save_tmp_files:
             print("Cleaning up temp files...")

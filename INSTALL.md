@@ -9,9 +9,9 @@
 
 ## Environment setup instructions
 ```bash
-conda create --name cuvler python=3.9 -y
+conda create --name cuvler python=3.9
 conda activate cuvler
-conda install pytorch torchvision -c pytorch
+conda install pytorch torchvision pytorch-cuda=<cuda-version> -c pytorch -c nvidia
 pip install git+https://github.com/lucasb-eyer/pydensecrf.git
 
 # under your working directory

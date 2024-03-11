@@ -44,7 +44,7 @@ You can also run the script without submitit (However, it will be much slower):
 python create_pseudo_masks.py --split train --out-file datasets/imagenet/annotations/imagenet_train_votecut_kmax_3_tuam_0.2.json \
  --out-dir datasets/imagenet
 ```
-You can also download the precomputed pseudo masks from [here](https://drive.google.com/uc?export=download&id=14HnEE2PDwIN_K6KhSPVWPRcAwRQQEhqE).
+You can also download the precomputed pseudo masks, following the instructions in [datasets/README.md](datasets/README.md).
 
 ## Train CuVLER
 This project trains a Cascade R-CNN model using [Detectron2](https://detectron2.readthedocs.io/en/latest/tutorials/training.html).
@@ -108,6 +108,11 @@ python cad/train_net.py \
 </tr>
 </tbody></table>
 
+For easy download in Linux machines, you can use the following commands to download the models:
+```
+cd path/to/save/directory
+python path/to/CuVLER/utils/gdrive_download.py --model {zero_shot, self_trained}
+```
 
 ## Evaluate CuVLER
 
