@@ -42,7 +42,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download files from gdrive")
 
     parser.add_argument("--gt-ann", type=str, choices=["all", "imagenet", "coco", "voc", "openImages", "comic", "clipart", "watercolor"], help="Download ground truth annotations")
-    parser.add_argument("--votecut-ann", type=str, help="Model to download", choices=["all", "train", "val"])
+    parser.add_argument("--votecut-ann", type=str, help="Download VoteCut annotations", choices=["all", "train", "val"])
+    parser.add_argument("--self-train-ann", type=str, help="Download Self-train annotations", choices=["coco"])
     parser.add_argument("--model", type=str, help="Model to download", choices=["zero_shot", "self_train"])
 
     args = parser.parse_args()
@@ -61,6 +62,10 @@ if __name__ == "__main__":
             download(os.path.join(datasets_path, "imagenet", "annotations"), _ANN_VOTECUT_GDRIVE_IDS["imagenet"])
         else:
             download(os.path.join(datasets_path, "imagenet", "annotations"), {k: v for k, v in _ANN_VOTECUT_GDRIVE_IDS["imagenet"].items() if args.votecut_ann in k})
+
+    if args.self_train_ann:
+        if args.self_train_ann == "coco":
+            download(os.path.join(datasets_path, "annotations"), _ANN_CUVLER_SELF_TRAIN_GDRIVE_IDS["coco"])
 
     if args.model:
         if args.model == "zero_shot":
