@@ -19,11 +19,11 @@ For easy download in Linux machines, you can use the following commands to downl
 ```
 cd path/to/CuVLER
 # for ground-truth annotations
-python utils/gdrive_download.py --gt-ann {all, imagenet, coco, voc, openImages, comic, clipart, watercolor}
+python utils/gdrive_downloader.py --gt-ann {all, imagenet, coco, voc, openImages, comic, clipart, watercolor}
 # for votecut imagenet annotaions
-python utils/gdrive_download.py --votecut-ann {all, train, val}
+python utils/gdrive_downloader.py --votecut-ann {all, train, val}
 # for votecut self-train coco annotaions
-python utils/gdrive_download.py --self-train-ann coco
+python utils/gdrive_downloader.py --self-train-ann coco
 ``` 
 
 ## ImageNet

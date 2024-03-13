@@ -3,6 +3,7 @@ import gdown
 from pathlib import Path
 import argparse
 
+
 _ANN_CLS_AGNOSTIC_GT_GDRIVE_IDS = {
     "imagenet": {"imagenet_val_cls_agnostic_gt.json": "1_4W3cuwo3lW6Ickpi7yYrm-TlX4oIoy8"},
     "coco": {"coco20k_trainval_gt.json": "1Vam0DamGADy_rClswNCIDpheGhiPKmYf",
@@ -32,6 +33,7 @@ _MODEL_ZOO_GDRIVE_IDS = {
     "cuvler_self_train": {"model_cuvler_coco_self_train.pth": "1jkAnc5KX45gmwnzcwaHjxTSq5U3-JAYD"}
 }
 
+
 def download(root, download_dict):
     Path(root).mkdir(parents=True, exist_ok=True)
     for file_name, file_id in download_dict.items():
@@ -39,8 +41,7 @@ def download(root, download_dict):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download files from gdrive")
-
+    parser = argparse.ArgumentParser(description="Download CuVLER files from google-drive")
     parser.add_argument("--gt-ann", type=str, choices=["all", "imagenet", "coco", "voc", "openImages", "comic", "clipart", "watercolor"], help="Download ground truth annotations")
     parser.add_argument("--votecut-ann", type=str, help="Download VoteCut annotations", choices=["all", "train", "val"])
     parser.add_argument("--self-train-ann", type=str, help="Download Self-train annotations", choices=["coco"])
@@ -55,13 +56,15 @@ if __name__ == "__main__":
             for k in _ANN_CLS_AGNOSTIC_GT_GDRIVE_IDS.keys():
                 download(os.path.join(datasets_path, k, "annotations"), _ANN_CLS_AGNOSTIC_GT_GDRIVE_IDS[k])
         else:
-            download(os.path.join(datasets_path, args.gt_ann, "annotations"), _ANN_CLS_AGNOSTIC_GT_GDRIVE_IDS[args.gt_ann])
+            download(os.path.join(datasets_path, args.gt_ann, "annotations"),
+                     _ANN_CLS_AGNOSTIC_GT_GDRIVE_IDS[args.gt_ann])
 
     if args.votecut_ann:
         if args.votecut_ann == "all":
             download(os.path.join(datasets_path, "imagenet", "annotations"), _ANN_VOTECUT_GDRIVE_IDS["imagenet"])
         else:
-            download(os.path.join(datasets_path, "imagenet", "annotations"), {k: v for k, v in _ANN_VOTECUT_GDRIVE_IDS["imagenet"].items() if args.votecut_ann in k})
+            download(os.path.join(datasets_path, "imagenet", "annotations"),
+                     {k: v for k, v in _ANN_VOTECUT_GDRIVE_IDS["imagenet"].items() if args.votecut_ann in k})
 
     if args.self_train_ann:
         if args.self_train_ann == "coco":
@@ -73,3 +76,4 @@ if __name__ == "__main__":
         elif args.model == "self_train":
             download(os.path.join(datasets_path, "models"), _MODEL_ZOO_GDRIVE_IDS["cuvler_self_train"])
 
+    print("Done!")

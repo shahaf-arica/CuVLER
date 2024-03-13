@@ -173,17 +173,26 @@ python create_pseudo_masks_submitit.py --split val \
    --slurm-partition <partition>
 ```
 ## Acknowledgements
-Part of this project is borrowed from [CutLER](https://github.com/facebookresearch/CutLER), We thank the authors for their contribution. 
+Part of this project is borrowed from [CutLER](https://github.com/facebookresearch/CutLER), we thank the authors for their contribution. 
 
 
 ## License
 Portion of this project belonging to CutLER, Detectron2 and DINO are released under the [CC-BY-NC license](https://github.com/facebookresearch/CutLER/blob/main/LICENSE).
 All other parts are under the [MIT license](https://opensource.org/license/mit).
 
-[//]: # (## Citation)
+## Citation
 
-[//]: # (If you use CuVLER in your research, please cite the following paper:)
-
+If you use CuVLER in your research, please cite the following paper:
+```
+@misc{arica2024cuvler,
+      title={CuVLER: Enhanced Unsupervised Object Discoveries through Exhaustive Self-Supervised Transformers}, 
+      author={Shahaf Arica and Or Rubin and Sapir Gershov and Shlomi Laufer},
+      year={2024},
+      eprint={2403.07700},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
 [//]: # ()
 [//]: # (```)
 

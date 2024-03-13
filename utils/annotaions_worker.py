@@ -40,6 +40,7 @@ category_info = {
     "id": 1
 }
 
+
 def get_info(contributor="", desc="", url="", year="", version="",):
     info = INFO.copy()
     if contributor:
@@ -54,6 +55,7 @@ def get_info(contributor="", desc="", url="", year="", version="",):
         info["version"] = version
     return info
 
+
 def get_license_info(name="", url=""):
     license = LICENSES.copy()
     if name:
@@ -63,7 +65,20 @@ def get_license_info(name="", url=""):
     return license
 
 
-def collect_to_single_ann_dict(anns_files, imgnet_train=False, contributor="", desc="", url="", year="", version="", license_url=""):
+def collect_to_single_ann_dict(anns_files, imgnet_train=False,
+                               contributor="", desc="", url="", year="", version="", license_url=""):
+    """
+    Collects all the temp annotations files into a single coco annotation dict
+    :param anns_files: list of temp annotation files
+    :param imgnet_train: if True, the images are from the imagenet train set arranged in subfolders by category
+    :param contributor: contributor name for the info field
+    :param desc: description for the info field
+    :param url: url for the info field
+    :param year: year for the info field
+    :param version: version for the info field
+    :param license_url: license url for the license field
+    :return:
+    """
     info = get_info(contributor, desc, url, year, version)
     license = get_license_info("Apache License", license_url)
     categories = CATEGORIES.copy()
@@ -162,6 +177,9 @@ def create_ann_for_single_image(image_id, file_name, height, width, image_masks)
 
 
 class CocoAnnotationsWorker:
+    """
+    A worker class for handling temp coco annotations files
+    """
     def __init__(self, worker_dir):
         self.worker_dir = worker_dir
         self.ann_dicts = []
@@ -177,6 +195,9 @@ class CocoAnnotationsWorker:
             return False
 
     def flush_and_save_anns(self):
+        """
+        Flushes the current annotations to a temp file
+        """
         with open(os.path.join(self.worker_dir, f"ann_{self.num_files-1}.json"), "w") as f:
             json.dump(self.ann_dicts, f)
         self.ann_dicts.clear()
@@ -188,7 +209,8 @@ class CocoAnnotationsWorker:
         self.cleanup_tmp_files(self.worker_dir)
 
     @classmethod
-    def collect_to_single_ann_dict(cls, anns_files, imgnet_train=False, contributor="", desc="", url="", year="", version="", license_url=""):
+    def collect_to_single_ann_dict(cls, anns_files, imgnet_train=False,
+                                   contributor="", desc="", url="", year="", version="", license_url=""):
         return collect_to_single_ann_dict(anns_files, imgnet_train, contributor, desc, url, year, version, license_url)
 
     @classmethod

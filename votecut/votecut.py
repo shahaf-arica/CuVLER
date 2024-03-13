@@ -53,6 +53,11 @@ def kmeans_labeling(vector_groups, Ks=(2, 3)):
 
 
 def kmeans_labeling_list(kmeans_labels):
+    """
+    Takes the list of dictionaries of kmeans labels and returns a list of labels matrices.
+    :param kmeans_labels:
+    :return:
+    """
     kmeans_labels_list = []
     for kmeans_label in kmeans_labels:
         kmeans_labels_list.append(kmeans_label['labels'])
@@ -96,6 +101,12 @@ def instances_from_semantic_labels(semantic_labels, min_mask_w=5, min_mask_h=5):
 
 
 def iou_between_masks(masks, device='cpu'):
+    """
+    Calculates the IoU between all pairs of masks in the input array of masks.
+    :param masks: array of shape (N, H, W) where N is the number of masks
+    :param device: device to use for the calculation
+    :return: array of shape (N, N) with the IoU between all pairs of masks
+    """
     masks_flat = masks.reshape(masks.shape[0], -1)
     # check if cuda available
     masks = torch.Tensor(masks_flat).to(device)
@@ -166,6 +177,12 @@ def cluster_mask_by_iou(masks, threshold=0.6, pivot_iter=5, device='cpu'):
 
 
 def IoU_bbox(mask1, mask2):
+    """
+    This method calculates the IoU between the two bboxes of mask1 and mask2.
+    :param mask1:
+    :param mask2:
+    :return:
+    """
     bbox_1 = bbox_from_mask(mask1)
     bbox_2 = bbox_from_mask(mask2)
     # calculate the intersection area
@@ -227,14 +244,32 @@ def resize_masks(masks, shape=(60,60)):
     return masks
 
 
-def iou_clustering(instance_masks, image_rgb:Image.Image=None, tau_m=0.2, patches_shape=(60, 60), device='cpu', max_masks_per_img=10):
+def iou_clustering(masks_proposals,
+                   image_rgb:Image.Image=None,
+                   tau_m=0.2,
+                   patches_shape=(60, 60),
+                   max_masks_per_img=10,
+                   device='cpu'):
+    """
+    This method performs the IoU clustering including CRF post-processing on the masks.
+    It returns a list of dictionaries that represent the final votecut objects in the image.
+    :param masks_proposals: list of numpy arrays of shape (H, W) where H and W are the height and width of the masks
+    :param image_rgb: PIL image
+    :param tau_m: The threshold for the final mask "Pixel-wise" voting
+    :param patches_shape: The shape of the patches to use for resizing the masks before iou clustering
+    :param max_masks_per_img: The maximum number of masks to return per image
+    :param device:
+    :return: list of dictionaries of the form: {"bit_mask": the mask after "Pixel-wise" voting, "mask": the final mask
+    after CRF post-processing, "crf_success": indicates whether CRF post-processing succeeded, "cluster_size": The size
+    of the cluster of masks that the mask belongs to.}
+    """
     # make sure the masks are of the same size
-    instance_masks = resize_masks(instance_masks, shape=patches_shape)
+    masks_proposals = resize_masks(masks_proposals, shape=patches_shape)
     # create numpy array from the masks list of numpy arrays
-    masks = np.array(instance_masks)
+    masks = np.array(masks_proposals)
     # cluster the masks by IoU
     mask_clusters = cluster_mask_by_iou(masks, threshold=0.6, device=device)
-    # perform post processing on the masks
+    # perform post-processing on the masks
     image_masks = []
     for i, cluster_data in enumerate(mask_clusters):
         if len(image_masks) >= max_masks_per_img or i >= 100:
@@ -258,10 +293,21 @@ def iou_clustering(instance_masks, image_rgb:Image.Image=None, tau_m=0.2, patche
 
 
 def votecut(image_rgb, eig_vec_groups, Ks=(2, 3), tau_m=0.2, device='cpu'):
+    """
+    This method performs the votecut algorithm on the image. It takes the eigenvectors of the image and performs votecut
+    pipeline on them. image_rgb is used to perform CRF and recover the correct scale for the image.
+    It returns a list of dictionaries that represent the votecut objects in the image.
+    :param image_rgb: PIL image
+    :param eig_vec_groups: dictionary of the form {group_name: {eigenvectors: [eig_vec_1, eig_vec_2, ...]}}
+    :param Ks: list of K values to use for K-means clustering
+    :param tau_m: The threshold for the final mask "Pixel-wise" voting
+    :param device:
+    :return:
+    """
     # perform kmeans on all eigen vectors
     kmeans_labels = kmeans_labeling(eig_vec_groups, Ks=Ks)
     # get contiguous masks from kmeans labels
-    instance_masks = instances_from_semantic_labels(kmeans_labeling_list(kmeans_labels))
+    masks_proposals = instances_from_semantic_labels(kmeans_labeling_list(kmeans_labels))
     # perform iou_clustering on the masks
-    image_masks = iou_clustering(instance_masks, image_rgb, tau_m=tau_m, device=device)
+    image_masks = iou_clustering(masks_proposals, image_rgb, tau_m=tau_m, device=device)
     return image_masks

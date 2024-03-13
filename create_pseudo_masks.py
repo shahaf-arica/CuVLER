@@ -13,6 +13,13 @@ import json
 
 
 def load_eig_vecs(eigenvec_dirs, num_eig_vecs, image_name):
+    """
+    Load the eigen vectors for the image in the format of a dictionary votecut method expects
+    :param eigenvec_dirs: list of directories containing the eigen vectors
+    :param num_eig_vecs: number of eigen vectors to use from each directory
+    :param image_name: name of the image without the extension
+    :return:
+    """
     # load eigen vectors
     vector_groups = {}
     for eigenvec_dir in eigenvec_dirs:
@@ -42,8 +49,23 @@ def parse_image_file(image_full_path):
     return image_name, image_id
 
 
-def create_votecut_annotations(eigenvec_dirs, img_files, Ks, worker_dir, tau_m=0.2, num_eig_vecs=1, save_period=100, device="cpu", resume=False):
-
+def create_votecut_annotations(eigenvec_dirs, img_files, Ks, worker_dir,
+                               tau_m=0.2, num_eig_vecs=1, save_period=100, device="cpu", resume=False):
+    """
+    This is a method for a single job that creates the pseudo labels for the images using votecut method and save them
+    to a temporary file in order to be aggregated later. That way we can parallelize the process of creating the pseudo
+    labels for the images, and also saving RAM by not keeping all the annotations in memory.
+    :param eigenvec_dirs: list of directories containing the eigen vectors
+    :param img_files: list of image files to process
+    :param Ks: Ks to use for kmeans
+    :param worker_dir: directory to save the temporary files
+    :param tau_m: tau_m to use for votecut
+    :param num_eig_vecs: number of eigen vectors to use
+    :param save_period: saving period for the annotations in temp files
+    :param device:
+    :param resume:
+    :return:
+    """
     ts = time.time()
     ann_worker = CocoAnnotationsWorker(worker_dir)
     # if the worker directory exists and we are not resuming the process clear it
@@ -112,6 +134,7 @@ if __name__ == "__main__":
     parser.add_argument("--save-period", type=int, default=100, help="saving period for the annotations in temp files")
     parser.add_argument("--tmp-folder", type=str, default="tmp", help="Directory to save temp files")
     parser.add_argument("--save-tmp-files", action="store_true", help="Save temp files")
+    parser.add_argument("--resume", type=bool, default=False, help="Resume from previous run")
     parser.add_argument("--device", type=str, default="cpu", choices=["cuda", "cpu"])
     args = parser.parse_args()
 
@@ -124,8 +147,7 @@ if __name__ == "__main__":
         all_image_files = glob(f"{args.dataset_root}/train/*/*.JPEG")
     else:
         raise ValueError(f"Invalid split {args.split} provided. Must be one of ['train', 'val']")
-    # all_images = [Path(file).name.split('.')[0] for file in all_image_files]
-    create_votecut_annotations(eigenvec_dirs, all_image_files, args.Ks, tmp_folder, args.tau_m, args.num_eig_vecs, args.save_period, args.device)
+    create_votecut_annotations(eigenvec_dirs, all_image_files, args.Ks, tmp_folder, args.tau_m, args.num_eig_vecs, args.save_period, args.device, args.resume)
     anns = CocoAnnotationsWorker.collect_to_single_ann_dict(tmp_folder, args.out_file)
     with open(args.out_file, "w") as f:
         json.dump(anns, f)
